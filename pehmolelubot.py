@@ -1,127 +1,139 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 import os
-import logging, random, time
+import logging
+import random
+import time
+import atexit
 
 logging.basicConfig(
+    filename='spam.log',
     level=logging.INFO,
     format='[%(asctime)s] [%(levelname)s] %(message)s'
 )
-fh = logging.FileHandler('spam.log') #filehandler
-fh.setLevel(logging.INFO)
 
+#   telegram API-key
 
 token = os.environ['TG_TOKEN']
 
-########  globaalit  init ###
-catIsHungry = False
-dogIsHungry = False
-catFed = 0
-fedTime = time.clock()
-mybots = {} # kaikki nykyiset chatit
-
-def start(update, context):
-    mybots[update.message.chat_id] = bot
-    update.message.reply_text('Heissulivei! Tämä on PehmoleluBotti,  jolla voi esim. ruokkia kisulia.')
+########  globaalit variablet ########
+catIsHungry=False
+dogIsHungry=False
+fedTime=time.clock()  # alussa ruokittu
+fedFile=open("fedLog.txt", "w+")
 
 
-def hello_world(bot, update):
-	print(update)
-	chat_id = update.message.chat.id
-	bot.sendMessage(chat_id, 'Hello world!')
+def catFed():  # retrievaa kuinka monta kertaa on syötetty
+    return int(fedFile.readlines()[-1].split()[2])  # luetaan syöttökerrat
 
 
-def dog_hungry(bot, update):
-    #print(update) # log that shite
-    chat_id = update.message.chat.id
-    global dogIsHungry
-    if dogIsHungry:
-        teksti = "dog on nälkäinen! *murr*"
-    else:
-        teksti = "doglla ei ole näläkä!"
-    bot.sendSticker(chat_id, sticker_map.get('dog'))
-    bot.sendMessage(chat_id, teksti)
-    dogIsHungry = False
+def start(bot, update):
+    chat_id=update.message.chat.id
+    bot.sendMessage(chat_id,
+        'Heissulivei! Tämä on PehmoleluBotti,  jolla voi esim. ruokkia kisulia.')
+
+
+def exit_handler():
+    fedFile.close()
 
 
 def cat_hungry(bot, update):
-    print(update) # log that shite
-    chat_id = update.message.chat.id
+    print(update)  # log that shite
+    chat_id=update.message.chat.id
     global catIsHungry
     if catIsHungry:
-        tekstiCat = "Kisuli on nälkäinen! *miaaaaau*"
+        ran=['Kisuli on nälkäinen! *miaaaaau*',
+               'Kisuli on nälkäinen. *murrr*',
+               'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     else:
-        tekstiCat = "Kummasti kisuli ei ole nälkäinen!"
-    #catIsHungry = False
+        ran=["Kummasti kisuli ei ole nälkäinen!",
+               "Kisulilla ei maha murise!",
+               "Kummasti kisuli ei ole nälkäinen!"]
+    random.shuffle(ran)
+    tekstiCat=ran[0]
     bot.sendSticker(chat_id, sticker_map.get('kisuli'))
     bot.sendMessage(chat_id, tekstiCat)
 
 
-def cat_hungry_random():
-    return random.randint(10800, 28800) # 3h<t<8h
+
+def cat_hungry_random():  # random aika väliltä
+    arvo=random.randint(10800, 28800)
+    return arvo  # 3h<t<8h
+# jos kulunut alle 3h ruokkimisesta = True
+
 
 def eaten_recently():
+    print('cat has eaten_recently')
     global fedTime
     if fedTime - time.clock() > -(3*60*60):    # jos kulunut alle 3h
         return True
     else:
         return False
 
-#       EI TÄLLÄ HETKELLÄ OTA MIHINKÄÄN CHATTIIN, LAITA KAIKKIIN RYHMIIN MIHIN LISÄTTY
-def cat_gets_hungry(a,b):
+
+def cat_gets_hungry():  # muuttaa vaan variablen
     global catIsHungry
-    catIsHungry = True
+    catIsHungry=True
     return
 
+
 def feed_cat(bot, update):
-    print(update) # log that shite
-    chat_id = update.message.chat.id
-    global catIsHungry, catFed, fedTime
-    fedTime = time.clock()
-    catIsHungry = False
-    catFed += 1
+    chat_id=update.message.chat.id
+    global catIsHungry, fedTime
+    fedTime=time.clock()
+    if not catIsHungry:
+        ran=['Kisuli ei ole nälkäinen, mutta ottaa silti namun =^._.^=',
+               'Kisuli popsii namun, vaikka ei ole nälkäinen.',
+               'Kisulilla ei ole näläkä; se ei estä syömästä namua.']
+    else:  # on hungry
+        catIsHungry=False
+        ran=['Kisuli syö namun. Ei ole nyt ainakaan nälkäinen!',
+               'Kisuli syö iloisesti nälkäänsä. *miaaaaau*',
+               'Kisuli popsii namun ahkerasti!']
+    fedFile.write(time.clock + " " + (catFed() + 1))
     bot.sendSticker(chat_id, sticker_map.get('kisuli'))
-    bot.sendMessage(chat_id, 'Kisuli syö namun. Ei ole nyt ainakaan nälkäinen!')
+    bot.sendMessage(chat_id, random.choice(ran))
 
 
 def cat_fed_times(bot, update):
-    chat_id = update.message.chat.id
-    global catFed
-    fedTeksti = 'Kisulille on annettu namuja ' + str(catFed) + ' =^._.^='
+    chat_id=update.message.chat.id
+    fedTeksti='Kisulille on annettu namuja ' + str(catFed()) + ' =^._.^='
     bot.sendMessage(chat_id, fedTeksti)
 
+
 def handle_message(bot, update):
-    """ Handles messages that match "all" filter """
-    chat_id = update.message.chat.id
+    chat_id=update.message.chat.id
 
-    # Check that we are dealing with message involving text
     if update.message.text:
-        words = update.message.text.split()
+        words=update.message.text.split()
+        words=list(map(lambda x: x.lower(), words))
         global catIsHungry
+        commonWords=list(set(words).intersection(foodWords))
 
-        if 'keksi' in words or 'Keksi' in words: # tee tämä hienommaksi
-            catIsHungry = True
-            ran = ['Kisuli kuulee sanan \'keksi\', hän on nyt nälkäinen.',
-                    'Kisuli tuli nälkäiseksi kuullessaan sanan \'keksi\'']
-            random.shuffle(ran)
-            bot.sendMessage(chat_id, ran[0])
+        if commonWords:  # tee tämä hienommaksi
+            cat_gets_hungry()
+            ruokaSana = random.choice(commonWords)
+            ran=['Kisuli kuulee sanan ' + ruokaSana + ', hän on nyt nälkäinen.',
+                   'Kisuli tuli nälkäiseksi kuullessaan sanan ' + ruokaSana,
+                   'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]
+            bot.sendMessage(chat_id, random.choice(ran))
 
-        elif not eaten_recently() and catIsHungry:
+        elif (not eaten_recently()) and catIsHungry:
             bot.sendSticker(chat_id, sticker_map.get('kisuli'))
-            ran = ['Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
-                    'Kisuli on nälkäinen. *murrr*',
-                    'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
-            random.shuffle(ran)
-            bot.sendMessage(chat_id, ran[0] )
-        # Loop through keywords and stickers in pairs
-        for hotword, sticker in sticker_map.items():
+            ran=['Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
+                   'Kisuli on nälkäinen. *murrr*',
+                   'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
+            bot.sendMessage(chat_id, random.choice(ran))
 
-            # Send a sticker for each matching keyword
+        # tutkitaan jokaiselle sanalle löytyykö matchia
+        for hotword, sticker in sticker_map.items():
+            # lähettää stickkerin matchaaviin sanoihin
             if hotword in words:
                 bot.sendSticker(chat_id, sticker)
 
-sticker_map = {
-    'dog': 'CAADBAADHQADlS56CMNshytcGo3hAg',
+# stickerit listana
+sticker_map={
+    'koira': 'CAADBAADHQADlS56CMNshytcGo3hAg',
     'winston': 'CAADBAADIQADlS56CKuKJ27vuhaPAg',
     'winstonjoulu': 'CAADBAADQAADlS56CC-y3uHoyBk9Ag',
     'pusheenwinston': 'CAADBAADKAADlS56CLUIxcv8o91KAg',
@@ -132,17 +144,23 @@ sticker_map = {
     'pingviini': 'CAADBAADYAADlS56CNYIEUXgh5upAg'
 }
 
+# ruokasanat
+foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
-updater = Updater(token)
-jq = updater.job_queue
+updater=Updater(token)
 
+#   Taustalla menevät prosessit job queuella
+jq=updater.job_queue
 jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
-#updater.dispatcher.add_handler(CommandHandler('hello', hello_world))
-updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_handler(CommandHandler('koiranalka', dog_hungry))
+
+#   Telegram komennot käytäntöön
+updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 updater.dispatcher.add_handler(CommandHandler('syottokerrat', cat_fed_times))
 updater.dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
 updater.start_polling()
 updater.idle()
+
+# yritä sulkea fedFile sulkiessa
+atexit.register(exit_handler)
