@@ -19,6 +19,7 @@ token = os.environ['TG_TOKEN']
 ########  globaalit variablet ########
 catIsHungry = False
 dogIsHungry = False
+complainedRecently = True
 fedTime = time.time()  # alussa ruokittu
 
 
@@ -48,13 +49,14 @@ def cat_hungry(bot, update):
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
                'Kisuli on nälkäinen. *murrr*',
                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
+        bot.send_photo(chat_id, photo=open('tahtooNamusia.jpg', 'rb'))
     else:
         ran = ["Kummasti kisuli ei ole nälkäinen!",
                "Kisulilla ei maha murise!",
                "Kummasti kisuli ei ole nälkäinen!"]
+        bot.sendSticker(chat_id, sticker_map.get('kisuli'))
     random.shuffle(ran)
     tekstiCat = ran[0]
-    bot.sendSticker(chat_id, sticker_map.get('kisuli'))
     bot.sendMessage(chat_id, tekstiCat)
 
 
@@ -81,8 +83,9 @@ def cat_gets_hungry():  # muuttaa vaan variablen
 
 def feed_cat(bot, update):
     chat_id = update.message.chat.id
-    global catIsHungry, fedTime
+    global catIsHungry, fedTime, complainedRecently
     fedTime = time.time()
+    complainedRecently = False
     if not catIsHungry:
         ran = ['Kisuli ei ole nälkäinen, mutta ottaa silti namun =^._.^=',
                'Kisuli popsii namun, vaikka ei ole nälkäinen.',
@@ -114,7 +117,7 @@ def handle_message(bot, update):
     if update.message.text:
         words = update.message.text.split()
         words = list(map(lambda x: x.lower(), words))
-        global catIsHungry
+        global catIsHungry, complainedRecently
         commonWords = list(set(words).intersection(foodWords))
 
         if commonWords:  # tee tämä hienommaksi
@@ -125,10 +128,12 @@ def handle_message(bot, update):
                    'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]
             bot.sendMessage(chat_id, random.choice(ran))
 
-        elif (not eaten_recently()) and catIsHungry:
-            bot.sendSticker(chat_id, sticker_map.get('kisuli'))
-            ran = ['Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
-                   'Kisuli on nälkäinen. *murrr*',
+        elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
+            complainedRecently = True
+            #bot.sendSticker(chat_id, sticker_map.get('kisuli'))
+            bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
+            ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
+                   '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
                    'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
             bot.sendMessage(chat_id, random.choice(ran))
 
@@ -143,9 +148,11 @@ def show_plot(bot, update):
     chat_id = update.message.chat.id
     bot.send_photo(chat_id, photo=open('plotti.png', 'rb'))
 
+
 def update_plot():
     # kutsu ./runPlot.run
     os.system("./runPlot.run")
+
 
 # stickerit listana
 sticker_map = {
@@ -160,6 +167,11 @@ sticker_map = {
     'pingviini': 'CAADBAADYAADlS56CNYIEUXgh5upAg'
 }
 
+
+def not_complained_recently():
+    complainedRecently = False
+
+
 # ruokasanat
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
@@ -169,6 +181,7 @@ updater = Updater(token)
 jq = updater.job_queue
 jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
 jq.run_repeating(update_plot, interval=1*60*60, first=0)
+jq.run_repeating(not_complained_recently, interval=0.5*60*60, first=0)
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
