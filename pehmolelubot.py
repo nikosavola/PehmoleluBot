@@ -139,6 +139,14 @@ def handle_message(bot, update):
                 bot.sendSticker(chat_id, sticker)
 
 
+def show_plot(bot, update):
+    chat_id = update.message.chat.id
+    bot.send_photo(chat_id, photo=open('plotti.png', 'rb'))
+
+def update_plot():
+    # kutsu ./runPlot.run
+    os.system("./runPlot.run")
+
 # stickerit listana
 sticker_map = {
     'koira': 'CAADBAADHQADlS56CMNshytcGo3hAg',
@@ -160,12 +168,14 @@ updater = Updater(token)
 #   Taustalla menevät prosessit job queuella
 jq = updater.job_queue
 jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
+jq.run_repeating(update_plot, interval=1*60*60, first=0)
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
-updater.dispatcher.add_handler(CommandHandler('syottokerrat', cat_fed_times))
+#updater.dispatcher.add_handler(CommandHandler('syottokerrat', cat_fed_times))
+updater.dispatcher.add_handler(CommandHandler('syottokerrat', show_plot))
 updater.dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
 updater.start_polling()
 updater.idle()
