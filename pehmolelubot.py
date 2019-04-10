@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
-import os
+import os, subprocess
 import logging
 import random
 import time
@@ -62,6 +62,8 @@ def cat_hungry(bot, update):
 
 def cat_hungry_random():  # random aika väliltä
     arvo = random.randint(10800, 28800)
+    # samalla päivitä plotti
+    update_plot()
     return arvo  # 3h<t<8h
 # jos kulunut alle 3h ruokkimisesta = True
 
@@ -76,9 +78,21 @@ def eaten_recently():
 
 
 def cat_gets_hungry():  # muuttaa vaan variablen
-    global catIsHungry
+    chat_id = -1001291373279
+    global catIsHungry, updater
     catIsHungry = True
-    return
+    if not eaten_recently():
+        updater.dispatcher.bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
+        ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
+               '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
+               'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
+    else:
+        updater.dispatcher.bot.send_photo(chat_id, photo=open('tahtooNamusia.jpg', 'rb'))
+        ran = ['Kisuli on nälkäinen! *miaaaaau*',
+                'Kisuli on nälkäinen. *murrr*',
+                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
+    updater.dispatcher.bot.sendMessage(chat_id, random.choice(ran))
+
 
 
 def feed_cat(bot, update):
@@ -137,6 +151,9 @@ def handle_message(bot, update):
                    'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
             bot.sendMessage(chat_id, random.choice(ran))
 
+        if "forceupdateplot" in words:  # debuggaus
+            update_plot()
+
         # tutkitaan jokaiselle sanalle löytyykö matchia
         for hotword, sticker in sticker_map.items():
             # lähettää stickkerin matchaaviin sanoihin
@@ -147,11 +164,6 @@ def handle_message(bot, update):
 def show_plot(bot, update):
     chat_id = update.message.chat.id
     bot.send_photo(chat_id, photo=open('plotti.png', 'rb'))
-
-
-def update_plot():
-    # kutsu ./runPlot.run
-    os.system("./runPlot.run")
 
 
 # stickerit listana
@@ -168,7 +180,12 @@ sticker_map = {
 }
 
 
+def update_plot():
+    # kutsu ./runPlot.run
+    subprocess.call("./runPlot.run", shell=True) # selvitä onko turvallisempaa tapaa
+
 def not_complained_recently():
+    global complainedRecently
     complainedRecently = False
 
 
@@ -179,9 +196,9 @@ updater = Updater(token)
 
 #   Taustalla menevät prosessit job queuella
 jq = updater.job_queue
-jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
-jq.run_repeating(update_plot, interval=1*60*60, first=0)
-jq.run_repeating(not_complained_recently, interval=0.5*60*60, first=0)
+jobCatHungry = jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
+jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
+#jq.run_repeating(update_plot, interval=(15*60), first=0)
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
