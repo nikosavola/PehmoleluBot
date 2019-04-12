@@ -154,6 +154,9 @@ def handle_message(bot, update):
         if "forceupdateplot" in words:  # debuggaus
             update_plot()
 
+        if "debugsana" in words:  # debuggaus
+            bot.sendMessage(chat_id, str(jq._queue))
+
         # tutkitaan jokaiselle sanalle löytyykö matchia
         for hotword, sticker in sticker_map.items():
             # lähettää stickkerin matchaaviin sanoihin
@@ -176,7 +179,8 @@ sticker_map = {
     'pingviinigang': 'CAADBAADKwADlS56CLo6nNJF-9kuAg',
     'inttinalle': 'CAADBAADKQADlS56CE8pASMtZ-jqAg',
     'kisuli': 'CAADBAADXwADlS56CL7r1G64m5GQAg',
-    'pingviini': 'CAADBAADYAADlS56CNYIEUXgh5upAg'
+    'pingviini': 'CAADBAADYAADlS56CNYIEUXgh5upAg',
+    'miisa':'CAADBAADYgADlS56CKRNpGh4NEIKAg'
 }
 
 
@@ -196,9 +200,10 @@ updater = Updater(token)
 
 #   Taustalla menevät prosessit job queuella
 jq = updater.job_queue
-jobCatHungry = jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
+jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
-#jq.run_repeating(update_plot, interval=(15*60), first=0)
+jq.run_repeating(update_plot, interval=(15*60), first=0)
+jq.start()
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
