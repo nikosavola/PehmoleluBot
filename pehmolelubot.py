@@ -24,10 +24,13 @@ fedTime = time.time()  # alussa ruokittu
 
 
 def catFed():  # retrievaa kuinka monta kertaa on syötetty
-    fedFile = open('fedLog.txt', 'r+')
-    fedFile.seek(0)  # aina streamin alkuun, sillä spaghettikoodi
-    newestFed = int(fedFile.readlines()[-1].split()[1])  # luetaan syöttökerrat
-    fedFile.close()  # turvallinen save
+    try:
+        fedFile = open('fedLog.txt', 'r+')
+        fedFile.seek(0)  # aina streamin alkuun, sillä spaghettikoodi
+        newestFed = int(fedFile.readlines()[-1].split()[1])  # spaghettikoodi
+        fedFile.close()  # turvallinen save
+    except: # creates the log file with feed_cat()
+        newestFed = 0
     return newestFed
 
 
@@ -42,7 +45,7 @@ def exit_handler():
 
 
 def cat_hungry(bot, update):
-    print(update)  # log that shite
+    print(update)  # log that stuff
     chat_id = update.message.chat.id
     global catIsHungry
     if catIsHungry:
@@ -55,23 +58,19 @@ def cat_hungry(bot, update):
                "Kisulilla ei maha murise!",
                "Kummasti kisuli ei ole nälkäinen!"]
         bot.sendSticker(chat_id, sticker_map.get('kisuli'))
-    random.shuffle(ran)
-    tekstiCat = ran[0]
-    bot.sendMessage(chat_id, tekstiCat)
+    bot.sendMessage(chat_id, random.choice(ran))
 
 
 def cat_hungry_random():  # random aika väliltä
-    arvo = random.randint(10800, 28800)
-    # samalla päivitä plotti
-    update_plot()
-    return arvo  # 3h<t<8h
-# jos kulunut alle 3h ruokkimisesta = True
+    arvo = random.randint(3*60*60, 6*60*60) # 3h<t<6h
+    update_plot() # samalla päivitä plotti
+    return arvo
 
 
 def eaten_recently():
     print('cat has eaten_recently')
     global fedTime
-    if fedTime - time.time() > -(3*60*60):    # jos kulunut alle 3h
+    if fedTime - time.time() > -(2*60*60):    # jos kulunut alle 2h
         return True
     else:
         return False
@@ -110,10 +109,8 @@ def feed_cat(bot, update):
                'Kisuli syö iloisesti nälkäänsä. *miaaaaau*',
                'Kisuli popsii namun ahkerasti!']
     nowFed = catFed() + 1
-    fedFile = open('fedLog.txt', 'r+')      # spaghettikoodiii
-    fedFile.seek(0, os.SEEK_END)
-    fedFile.write("\n")
-    fedFile.write(str(time.time()) + " " + str(nowFed))
+    fedFile = open('fedLog.txt', 'a+')
+    fedFile.write(str(time.time()) + " " + str(nowFed) + "\n")
     fedFile.close()
     bot.sendSticker(chat_id, sticker_map.get('kisuli'))
     bot.sendMessage(chat_id, random.choice(ran))
@@ -132,8 +129,8 @@ def handle_message(bot, update):
         words = update.message.text.split()
         words = list(map(lambda x: x.lower(), words))
         global catIsHungry, complainedRecently
+        '''
         commonWords = list(set(words).intersection(foodWords))
-
         if commonWords:  # tee tämä hienommaksi
             cat_gets_hungry()
             ruokaSana = random.choice(commonWords)
@@ -141,8 +138,8 @@ def handle_message(bot, update):
                    'Kisuli tuli nälkäiseksi kuullessaan sanan ' + ruokaSana,
                    'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]
             bot.sendMessage(chat_id, random.choice(ran))
-
-        elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
+        el'''
+        if (not eaten_recently()) and catIsHungry and (not complainedRecently):
             complainedRecently = True
             #bot.sendSticker(chat_id, sticker_map.get('kisuli'))
             bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
