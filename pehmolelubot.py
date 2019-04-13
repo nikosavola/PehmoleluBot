@@ -189,7 +189,11 @@ def not_complained_recently():
     global complainedRecently
     complainedRecently = False
 
+def wappu(bot, update):
+    chat_id = update.message.chat.id
+    bot.send_photo(chat_id, photo=open('wappu.png', 'rb'))
 
+    
 # ruokasanat
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
@@ -204,7 +208,9 @@ jq.start()
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
+updater.dispatcher.add_handler(CommandHandler('wappu', wappu))
 updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
+updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 #updater.dispatcher.add_handler(CommandHandler('syottokerrat', cat_fed_times))
 updater.dispatcher.add_handler(CommandHandler('syottokerrat', show_plot))
