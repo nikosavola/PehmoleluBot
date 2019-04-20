@@ -63,7 +63,6 @@ def cat_hungry(bot, update):
 
 def cat_hungry_random():  # random aika väliltä
     arvo = random.randint(3*60*60, 6*60*60) # 3h<t<6h
-    update_plot() # samalla päivitä plotti
     return arvo
 
 
@@ -91,7 +90,6 @@ def cat_gets_hungry():  # muuttaa vaan variablen
                 'Kisuli on nälkäinen. *murrr*',
                 'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     updater.dispatcher.bot.sendMessage(chat_id, random.choice(ran))
-
 
 
 def feed_cat(bot, update):
@@ -129,7 +127,7 @@ def handle_message(bot, update):
         words = update.message.text.split()
         words = list(map(lambda x: x.lower(), words))
         global catIsHungry, complainedRecently
-        '''
+        #'''
         commonWords = list(set(words).intersection(foodWords))
         if commonWords:  # tee tämä hienommaksi
             cat_gets_hungry()
@@ -138,8 +136,8 @@ def handle_message(bot, update):
                    'Kisuli tuli nälkäiseksi kuullessaan sanan ' + ruokaSana,
                    'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]
             bot.sendMessage(chat_id, random.choice(ran))
-        el'''
-        if (not eaten_recently()) and catIsHungry and (not complainedRecently):
+        #el'''
+        elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
             complainedRecently = True
             #bot.sendSticker(chat_id, sticker_map.get('kisuli'))
             bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
@@ -168,7 +166,7 @@ def show_plot(bot, update):
 
 # stickerit listana
 sticker_map = {
-    'koira': 'CAADBAADHQADlS56CMNshytcGo3hAg',
+    'husky-strawberry': 'CAADBAADHQADlS56CMNshytcGo3hAg',
     'winston': 'CAADBAADIQADlS56CKuKJ27vuhaPAg',
     'winstonjoulu': 'CAADBAADQAADlS56CC-y3uHoyBk9Ag',
     'pusheenwinston': 'CAADBAADKAADlS56CLUIxcv8o91KAg',
@@ -193,7 +191,7 @@ def wappu(bot, update):
     chat_id = update.message.chat.id
     bot.send_photo(chat_id, photo=open('wappu.png', 'rb'))
 
-    
+
 # ruokasanat
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
@@ -204,7 +202,7 @@ jq = updater.job_queue
 jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=0)
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
 jq.run_repeating(update_plot, interval=(15*60), first=0)
-jq.start()
+#jq.start()
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
