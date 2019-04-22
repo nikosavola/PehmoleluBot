@@ -1,3 +1,17 @@
+täffä
+resilar
+körsbärs
+atapirtelö
+repetiresepti
+kala
+fisu
+laranjo
+jaffa
+surströmming
+spagu
+spagundai
+mämmi
+hot
 keksi
 namu
 peruna
@@ -254,7 +268,6 @@ knife
 kohlrabi
 kumquat
 ladle
-lamb
 lard
 lasagna
 legumes
@@ -755,7 +768,6 @@ kinkku
 hampurilainen
 hash
 hasselpähkinä
-herpes
 hunaja
 hunajameloni
 piparjuuri
@@ -795,7 +807,6 @@ veitsi
 kyssäkaali
 kumkvatit
 kauha
-lammas
 laardi
 lasagne
 palkokasvit
