@@ -2,6 +2,7 @@
 close all
 clear all
 
+
 data = importdata('fedLog.txt',' ',0);
 t=datetime(data(:,1),'ConvertFrom','posixtime');
 dateNums = datenum(t);
