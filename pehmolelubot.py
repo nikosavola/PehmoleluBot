@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 import os, subprocess
+# -*- coding: utf-8 -*-
 import logging
 import random
-import time
+import datetime, time
 import atexit
 
 logging.basicConfig(
@@ -51,7 +51,7 @@ def cat_hungry(bot, update):
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
                'Kisuli on nälkäinen. *murrr*',
                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
-        bot.send_photo(chat_id, photo=open('tahtooNamusia.jpg', 'rb'))
+        bot.send_photo(chat_id, photo=open('Images/tahtooNamusia.jpg', 'rb'))
     else:
         ran = ["Kummasti kisuli ei ole nälkäinen!",
                "Kisulilla ei maha murise!",
@@ -79,18 +79,18 @@ def cat_gets_hungry(bot=None, job=None):  # muuttaa vaan variablen
     catIsHungry = True
     if not eaten_recently():
         for id in chat_id:
-            updater.dispatcher.bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
+            updater.dispatcher.bot.send_photo(id, photo=open('Images/murr.jpg', 'rb'))
         ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
                '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     else:
         for id in chat_id:
-            updater.dispatcher.bot.send_photo(chat_id, photo=open('tahtooNamusia.jpg', 'rb'))
+            updater.dispatcher.bot.send_photo(id, photo=open('Images/tahtooNamusia.jpg', 'rb'))
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
                 'Kisuli on nälkäinen. *murrr*',
                 'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     for id in chat_id:
-        updater.dispatcher.bot.sendMessage(chat_id, random.choice(ran))
+        updater.dispatcher.bot.sendMessage(id, random.choice(ran))
 
 
 def feed_cat(bot, update):
@@ -146,7 +146,7 @@ def handle_message(bot, update):
 
         elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
             complainedRecently = True
-            bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
+            bot.send_photo(chat_id, photo=open('Images/murr.jpg', 'rb'))
             ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
                    '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
                    'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
@@ -177,6 +177,11 @@ def add_point(bot, update):
     pointsFile.close()
 
 
+def wappu(bot, update):
+    chat_id = update.message.chat.id
+    bot.send_photo(chat_id, photo=open('Images/wappu.png', 'rb'))
+
+
 # stickerit listana
 sticker_map = {
     'husky-strawberry': 'CAADBAADHQADlS56CMNshytcGo3hAg',
@@ -201,10 +206,10 @@ def not_complained_recently(bot=None, job=None):
     global complainedRecently
     complainedRecently = False
 
-def wappu(bot, update):
-    chat_id = update.message.chat.id
-    bot.send_photo(chat_id, photo=open('wappu.png', 'rb'))
-
+def show_leaderboards_daily(bot=None, job=None):
+    chat_id = [-1001291373279, -1001131311658]
+    for id in chat_id:
+        bot.send_photo(chat_id, photo=open('leaderboards.png', 'rb'))
 
 # ruokasanat kerralla muistiin
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
@@ -216,6 +221,7 @@ jq = updater.job_queue
 jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=cat_hungry_random())
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
 jq.run_repeating(update_plot, interval=(30*60), first=0)
+jq.run_daily(show_leaderboards_daily, datetime.time(0)) # keskiöittäin
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))

@@ -1,1 +1,2 @@
 matlab -nodisplay -nosplash -nodesktop -r "run('plotFed.m');exit;" | tail -n +11
+matlab -nodisplay -nosplash -nodesktop -r "run('plotLeaderboards.m');exit;" | tail -n +11
