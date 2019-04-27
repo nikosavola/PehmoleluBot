@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 import os, subprocess
+# -*- coding: utf-8 -*-
 import logging
 import random
 import datetime, time
@@ -51,7 +51,7 @@ def cat_hungry(bot, update):
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
                'Kisuli on nälkäinen. *murrr*',
                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
-        bot.send_photo(chat_id, photo=open('tahtooNamusia.jpg', 'rb'))
+        bot.send_photo(chat_id, photo=open('Images/tahtooNamusia.jpg', 'rb'))
     else:
         ran = ["Kummasti kisuli ei ole nälkäinen!",
                "Kisulilla ei maha murise!",
@@ -79,13 +79,13 @@ def cat_gets_hungry(bot=None, job=None):  # muuttaa vaan variablen
     catIsHungry = True
     if not eaten_recently():
         for id in chat_id:
-            updater.dispatcher.bot.send_photo(id, photo=open('murr.jpg', 'rb'))
+            updater.dispatcher.bot.send_photo(id, photo=open('Images/murr.jpg', 'rb'))
         ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
                '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     else:
         for id in chat_id:
-            updater.dispatcher.bot.send_photo(id, photo=open('tahtooNamusia.jpg', 'rb'))
+            updater.dispatcher.bot.send_photo(id, photo=open('Images/tahtooNamusia.jpg', 'rb'))
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
                 'Kisuli on nälkäinen. *murrr*',
                 'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
@@ -146,7 +146,7 @@ def handle_message(bot, update):
 
         elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
             complainedRecently = True
-            bot.send_photo(chat_id, photo=open('murr.jpg', 'rb'))
+            bot.send_photo(chat_id, photo=open('Images/murr.jpg', 'rb'))
             ran = ['*MIAAAAAAAU* Kisuli ei ole syönyt johonkin aikaan, kisulilla on nälkä!',
                    '*murrrrrrrr* Kisulilla on nälkä /ᐠ｡‸｡ᐟ\\',
                    'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
@@ -179,7 +179,7 @@ def add_point(bot, update):
 
 def wappu(bot, update):
     chat_id = update.message.chat.id
-    bot.send_photo(chat_id, photo=open('wappu.png', 'rb'))
+    bot.send_photo(chat_id, photo=open('Images/wappu.png', 'rb'))
 
 
 # stickerit listana
