@@ -10,6 +10,7 @@ Telegram bot for feeding a virtual plushie cat.
 
 ## Prerequisities
 * Python 2.7.2+ and PIP
+* MATLAB R2016b or newer
 * [Python Telegram Bot](https://github.com/python-telegram-bot/python-telegram-bot)
 ```
 $ pip install python-telegram-bot
@@ -21,10 +22,7 @@ $ pip install python-telegram-bot
 ```
 $ export TG_TOKEN=”YourApiKeyHere”
 ```
-* create a fedLog.txt file in the same directory with the values
-```
-CURRENTUNIXTIME 0
-```
+
 
 ### Running the bot
 * Favourably in a screen
@@ -36,8 +34,8 @@ $ python pehmolelubot.py
 
 ## Example messages
 * <img src="https://raw.githubusercontent.com/NikoDaGreat/PehmoleluBot/master/murr.jpg" alt="Hungry cat" width="50%" height="50%" />
-* <img src="https://i.imgur.com/q8YjhgY.png" alt="Not-hungry cat" width="40%" height="40%" />
-
+* <img src="https://i.imgur.com/q8YjhgY.png" alt="Non-hungry cat" width="40%" height="40%" />
+* <img src="https://i.imgur.com/y72Jo7g.png" alt="Non-hungry cat" width="60%" height="60%"/>
 
 ## Special thanks
 * Aalto University Guild of Physics (especially their coffee machine)
