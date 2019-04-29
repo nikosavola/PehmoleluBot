@@ -5,7 +5,7 @@ Telegram bot for feeding a virtual plushie cat.
 ## Features to add
 * Convert MATLAB-plot to Pyplot
 * Make the food words hasten the time it takes for the cat to get hungry
-* Command that shows who fed the cat first with leaderboards
+  * Random chance of rendering the cat hungry upon hearing a food word. Preferably with a cooldown.
 
 
 ## Prerequisities

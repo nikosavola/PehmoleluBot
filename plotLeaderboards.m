@@ -1,7 +1,6 @@
 % MATLAB-skripti leaderboardseja varten
 close all
 clear all
-addpath('./findNlargest/');
 
 % hassun hauskat tekstit
 set(0,'defaultAxesFontName', 'Comic Sans MS')
