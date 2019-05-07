@@ -3,6 +3,7 @@ import os, subprocess
 # -*- coding: utf-8 -*-
 import logging
 import random
+import numpy
 import datetime, time
 import atexit
 
@@ -17,7 +18,6 @@ token = os.environ['TG_TOKEN']
 
 ########  globaalit variablet ########
 catIsHungry = False
-dogIsHungry = False
 complainedRecently = True
 fedTime = time.time()  # alussa ruokittu
 
@@ -61,7 +61,8 @@ def cat_hungry(bot, update):
 
 
 def cat_hungry_random():  # random aika
-    return random.randint(3*60*60, 6*60*60) # 3h<t<6h
+    # return random.randint(3*60*60, 6*60*60) # 3h<t<6h
+    return numpy.random.exponential(1.5)*4*60*60
 
 
 def eaten_recently():
@@ -91,7 +92,7 @@ def cat_gets_hungry(bot=None, job=None):  # muuttaa vaan variablen
                 'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     for id in chat_id:
         updater.dispatcher.bot.sendMessage(id, random.choice(ran))
-
+    jq.run_once(cat_gets_hungry, when=cat_hungry_random() ) # stack the new time for feeding
 
 def feed_cat(bot, update):
     chat_id = update.message.chat.id
@@ -176,11 +177,11 @@ def add_point(bot, update):
     pointsFile.write(str(time.time()) + " " + str(update.message.from_user.username) + "\n")
     pointsFile.close()
 
-
+"""
 def wappu(bot, update):
     chat_id = update.message.chat.id
     bot.send_photo(chat_id, photo=open('Images/wappu.png', 'rb'))
-
+"""
 
 # stickerit listana
 sticker_map = {
@@ -216,16 +217,18 @@ foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
 updater = Updater(token)
 
+
 #   Taustalla menevät prosessit job queuella
 jq = updater.job_queue
-jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=cat_hungry_random())
+#   jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=cat_hungry_random())
+jq.run_once(cat_gets_hungry, when=cat_hungry_random() ) # first run
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
 jq.run_repeating(update_plot, interval=(30*60), first=0)
 jq.run_daily(show_leaderboards_daily, datetime.time(0)) # keskiöittäin
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('wappu', wappu))
+#updater.dispatcher.add_handler(CommandHandler('wappu', wappu))
 updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 updater.dispatcher.add_handler(CommandHandler('syottokerrat', show_plot))
