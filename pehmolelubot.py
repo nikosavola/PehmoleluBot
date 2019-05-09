@@ -1,10 +1,12 @@
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
-import os, subprocess
 # -*- coding: utf-8 -*-
+from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
+import os
+import subprocess
 import logging
 import random
 import numpy
-import datetime, time
+import datetime
+import time
 import atexit
 
 logging.basicConfig(
@@ -25,11 +27,11 @@ fedTime = time.time()  # alussa ruokittu
 def start(bot, update):
     chat_id = update.message.chat.id
     bot.sendMessage(chat_id,
-    'Heissulivei! Tämä on PehmoleluBotti,  jolla voi esim. ruokkia kisulia.')
+                    'Heissulivei! Tämä on PehmoleluBotti,  jolla voi esim. ruokkia kisulia.')
 
 
 def exit_handler():
-        print("Sammutetaan...")
+    print("Sammutetaan...")
 
 
 def catFed():  # retrievaa kuinka monta kertaa on syötetty
@@ -38,7 +40,7 @@ def catFed():  # retrievaa kuinka monta kertaa on syötetty
         fedFile.seek(0)  # aina streamin alkuun, sillä spaghettikoodi
         newestFed = int(fedFile.readlines()[-1].split()[1])  # spaghettikoodi
         fedFile.close()  # turvallinen save
-    except: # creates the log file with feed_cat()
+    except:  # creates the log file with feed_cat()
         newestFed = 0
     return newestFed
 
@@ -88,11 +90,12 @@ def cat_gets_hungry(bot=None, job=None):  # muuttaa vaan variablen
         for id in chat_id:
             updater.dispatcher.bot.send_photo(id, photo=open('Images/tahtooNamusia.jpg', 'rb'))
         ran = ['Kisuli on nälkäinen! *miaaaaau*',
-                'Kisuli on nälkäinen. *murrr*',
-                'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
+               'Kisuli on nälkäinen. *murrr*',
+               'Kisuli tahtoo ruokaa  /ᐠ｡‸｡ᐟ\\']
     for id in chat_id:
         updater.dispatcher.bot.sendMessage(id, random.choice(ran))
-    jq.run_once(cat_gets_hungry, when=cat_hungry_random() ) # stack the new time for feeding
+    jq.run_once(cat_gets_hungry, when=cat_hungry_random())  # stack the new time for feeding
+
 
 def feed_cat(bot, update):
     chat_id = update.message.chat.id
@@ -108,7 +111,7 @@ def feed_cat(bot, update):
         ran = ['Kisuli syö namun. Ei ole nyt ainakaan nälkäinen!',
                'Kisuli syö iloisesti nälkäänsä. *miaaaaau*',
                'Kisuli popsii namun ahkerasti!']
-        add_point(bot, update) # lisää piste jos nälkäsyöttö
+        add_point(bot, update)  # lisää piste jos nälkäsyöttö
     nowFed = catFed() + 1
     fedFile = open('fedLog.txt', 'a+')
     fedFile.write(str(time.time()) + " " + str(nowFed) + "\n")
@@ -177,6 +180,7 @@ def add_point(bot, update):
     pointsFile.write(str(time.time()) + " " + str(update.message.from_user.username) + "\n")
     pointsFile.close()
 
+
 """
 def wappu(bot, update):
     chat_id = update.message.chat.id
@@ -194,23 +198,26 @@ sticker_map = {
     'inttinalle': 'CAADBAADKQADlS56CE8pASMtZ-jqAg',
     'kisuli': 'CAADBAADXwADlS56CL7r1G64m5GQAg',
     'pingviini': 'CAADBAADYAADlS56CNYIEUXgh5upAg',
-    'miisa':'CAADBAADYgADlS56CKRNpGh4NEIKAg',
-    'kaarleppi':'CAADBAADHgADlS56CIVOivZh0GgWAg',
-    'мишка':'CAADBAADYwADlS56CGH_gl4AAXE1SAI',
+    'miisa': 'CAADBAADYgADlS56CKRNpGh4NEIKAg',
+    'kaarleppi': 'CAADBAADHgADlS56CIVOivZh0GgWAg',
+    'мишка': 'CAADBAADYwADlS56CGH_gl4AAXE1SAI',
 }
 
 
 def update_plot(bot=None, job=None):
-    subprocess.call("./runPlot.run", shell=True) # selvitä onko turvallisempaa tapaa
+    subprocess.call("./runPlot.run", shell=True)  # selvitä onko turvallisempaa tapaa
+
 
 def not_complained_recently(bot=None, job=None):
     global complainedRecently
     complainedRecently = False
 
+
 def show_leaderboards_daily(bot=None, job=None):
     chat_id = [-1001291373279, -1001131311658]
     for id in chat_id:
         bot.send_photo(chat_id, photo=open('leaderboards.png', 'rb'))
+
 
 # ruokasanat kerralla muistiin
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
@@ -221,10 +228,10 @@ updater = Updater(token)
 #   Taustalla menevät prosessit job queuella
 jq = updater.job_queue
 #   jq.run_repeating(cat_gets_hungry, interval=cat_hungry_random(), first=cat_hungry_random())
-jq.run_once(cat_gets_hungry, when=cat_hungry_random() ) # first run
+jq.run_once(cat_gets_hungry, when=cat_hungry_random())  # first run
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
 jq.run_repeating(update_plot, interval=(30*60), first=0)
-jq.run_daily(show_leaderboards_daily, datetime.time(0)) # keskiöittäin
+jq.run_daily(show_leaderboards_daily, datetime.time(0))  # keskiöittäin
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
