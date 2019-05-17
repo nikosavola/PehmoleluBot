@@ -22,6 +22,7 @@ token = os.environ['TG_TOKEN']
 catIsHungry = False
 complainedRecently = True
 fedTime = time.time()  # alussa ruokittu
+foodWordsHeard = 0 # alustetaan laskuri
 
 
 def start(bot, update):
@@ -64,7 +65,12 @@ def cat_hungry(bot, update):
 
 def cat_hungry_random():  # random aika
     # return random.randint(3*60*60, 6*60*60) # 3h<t<6h
-    return numpy.random.exponential(1.5)*4*60*60
+    global foodWordsHeard
+    nextTime = 0
+    while (nextTime < 60*15):
+        nextTime = numpy.random.exponential(1.5)*4*60*60 - numpy.random.exponential(3.0)* foodWordsHeard * 60
+    foodWordsHeard = 0
+    return nextTime
 
 
 def eaten_recently():
@@ -77,7 +83,7 @@ def eaten_recently():
 
 
 def cat_gets_hungry(bot=None, job=None):  # muuttaa vaan variablen
-    chat_id = [-1001291373279, -1001131311658]
+    chat_id = [-1001291373279] # -1001131311658
     global catIsHungry, updater
     catIsHungry = True
     if not eaten_recently():
@@ -145,7 +151,8 @@ def handle_message(bot, update):
                    'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]    '''
             ran = ['Kisuli kuulee sanan ' + ruokaSana + ', hän melkein tuli nälkäiseksi.',
                    'Kisuli ei aivan nälkääntynyt kuullessaan sanan ' + ruokaSana,
-                   'Kisulille tuli melkein näläkä kuultuaan sanan ' + ruokaSana]
+                   'Kisulille tuli melkein näläkä kuultuaan sanan ' + ruokaSana
+            foodWordsHeard += 1
             bot.sendMessage(chat_id, random.choice(ran))
 
         elif (not eaten_recently()) and catIsHungry and (not complainedRecently):
@@ -231,7 +238,7 @@ jq = updater.job_queue
 jq.run_once(cat_gets_hungry, when=cat_hungry_random())  # first run
 jq.run_repeating(not_complained_recently, interval=(0.5*60*60), first=0)
 jq.run_repeating(update_plot, interval=(30*60), first=0)
-jq.run_daily(show_leaderboards_daily, datetime.time(0))  # keskiöittäin
+jq.run_daily(show_leaderboards_daily, datetime.time.min)  # keskiöittäin
 
 #   Telegram komennot käytäntöön
 updater.dispatcher.add_handler(CommandHandler('start', start))
