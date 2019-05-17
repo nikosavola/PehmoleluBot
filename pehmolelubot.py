@@ -151,7 +151,8 @@ def handle_message(bot, update):
                    'Kisulille tuli näläkä kuultuaan sanan ' + ruokaSana]    '''
             ran = ['Kisuli kuulee sanan ' + ruokaSana + ', hän melkein tuli nälkäiseksi.',
                    'Kisuli ei aivan nälkääntynyt kuullessaan sanan ' + ruokaSana,
-                   'Kisulille tuli melkein näläkä kuultuaan sanan ' + ruokaSana
+                   'Kisulille tuli melkein näläkä kuultuaan sanan ' + ruokaSana]
+            global foodWordsHeard
             foodWordsHeard += 1
             bot.sendMessage(chat_id, random.choice(ran))
 
