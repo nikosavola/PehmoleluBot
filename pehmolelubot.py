@@ -227,6 +227,11 @@ def show_leaderboards_daily(bot=None, job=None):
         bot.send_photo(chat_id, photo=open('leaderboards.png', 'rb'))
 
 
+def s_slash(bot, update):
+    chat_id = update.message.chat.id
+    bot.sendMessage(chat_id, 'sssssss, kisuli leikkii olevansa kärmes 🐍')
+    
+
 # ruokasanat kerralla muistiin
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
 
@@ -248,6 +253,7 @@ updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 updater.dispatcher.add_handler(CommandHandler('syottokerrat', show_plot))
 updater.dispatcher.add_handler(CommandHandler('leaderboards', show_leaderboards))
+updater.dispatcher.add_handler(CommandHandler('s', s_slash))
 updater.dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
 updater.start_polling()
 updater.idle()
