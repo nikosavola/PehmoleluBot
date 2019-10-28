@@ -8,6 +8,7 @@ import numpy
 import datetime
 import time
 import atexit
+import meow
 
 logging.basicConfig(
     filename='spam.log',
@@ -67,7 +68,7 @@ def cat_hungry_random():  # random aika
     # return random.randint(3*60*60, 6*60*60) # 3h<t<6h
     global foodWordsHeard
     nextTime = 0
-    while (nextTime < 60*15):
+    while (nextTime < 60*15 and nextTime > 72*60*60):
         nextTime = numpy.random.exponential(1.5)*4*60*60 - numpy.random.exponential(3.0)* foodWordsHeard * 60
     foodWordsHeard = 0
     return nextTime
@@ -172,6 +173,11 @@ def handle_message(bot, update):
             if hotword in words:
                 bot.sendSticker(chat_id, sticker)
 
+def meowise(bot, update, args):
+    line = " ".join(args)
+    meowisedLine = meow.meow_meow(line, meow.meow)
+    bot.sendMessage(update.message.chat.id, meowisedLine)
+
 
 def show_plot(bot, update):
     chat_id = update.message.chat.id
@@ -230,7 +236,7 @@ def show_leaderboards_daily(bot=None, job=None):
 def s_slash(bot, update):
     chat_id = update.message.chat.id
     bot.sendMessage(chat_id, 'sssssss, kisuli leikkii olevansa kärmes 🐍')
-    
+
 
 # ruokasanat kerralla muistiin
 foodWords = [line.rstrip('\n') for line in open("ruokasanat.txt", "r")]
@@ -253,6 +259,7 @@ updater.dispatcher.add_handler(CommandHandler('kisulinalka', cat_hungry))
 updater.dispatcher.add_handler(CommandHandler('syotakisuli', feed_cat))
 updater.dispatcher.add_handler(CommandHandler('syottokerrat', show_plot))
 updater.dispatcher.add_handler(CommandHandler('leaderboards', show_leaderboards))
+updater.dispatcher.add_handler(CommandHandler('meowise', meowise, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('s', s_slash))
 updater.dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
 updater.start_polling()
